@@ -1,4 +1,5 @@
 import re
+import sre_constants
 
 LEX_BRAKE=0X00
 LEX_OP=0X01
@@ -124,7 +125,16 @@ class lexical_processor():
 
     def post_process(self,src_code):
         regex_note=r'(\/\/.*)' #双/型注释
-        return re.sub(regex_note,'',src_code)
+        src_code=re.sub(regex_note,'',src_code)
+        regex_string=r'\"(\S*)\"' #单行字符串，内部嵌有的引号好像不会被识别
+        strings=re.findall(regex_string,src_code)
+        count=0
+        strings_predef=''
+        while count<=len(strings):
+            src_code.replace('"'+strings[count]+'"','__nitro_runtime_str_'+str(count),1)
+            strings_predef+='#predef __nitro_runtime_str_'+str(count)+' '+strings[count]+'\n'
+            count+=1
+        return strings_predef+src_code
 
     def token_to_num(self,token):
         table={
