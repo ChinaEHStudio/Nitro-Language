@@ -1,5 +1,4 @@
 import re
-import sre_constants
 
 LEX_BRAKE=0X00
 LEX_OP=0X01
@@ -50,7 +49,8 @@ LEX_STRING=0X0041
 LEX_FLOAT=0X0042
 LEX_DOUBLE=0X0043
 LEX_FUNCTION=0X0050
-LEX_USERDEF=0x01ff
+LEX_NONTOKEN=0x01ff#包括变量名，数字，等等
+LEX_USERDEF_TYPE=0X02ff
 
 class lexical_processor():
     '''
@@ -72,9 +72,10 @@ class lexical_processor():
     source_code=str()
     src_code_list=[]
     token=[]
+
     nontoken_symbols_list=[]
-    
-    sorted_token=[]
+    defined_symbols_list=[]
+    sorted_token=[]#这玩意被我搞成了Vt和Vn的并集，算了不管力
     def __init__(self,src_code):
         src=self.post_process(src_code)
         self.source_code=src
@@ -86,11 +87,14 @@ class lexical_processor():
         for t in self.token:
             if self.sort_token_type(t):
                 self.sorted_token.append(self.token_to_num(t),t)#将token按照 类型, 内容分类
-            else:self.sorted_token.append(LEX_USERDEF,t)
-            if (not t in self.kw)\
+            else:
+                self.sorted_token.append(LEX_NONTOKEN,t)#得专门弄个啥东西处理变量，太复杂了
+                self.nontoken_symbols_list.append(t)#不过也可以把这些东西留到后面处理，不管了，就这样吧。
+                '''if (not t in self.kw)\
                 and (not t in self.brakes)\
-                and (not t in self.operators):#暂时没法处理字符串
-                self.nontoken_symbols_list.append(t)
+                and (not t in self.operators):#暂时没法处理字符串 现在写了
+                '''
+            
         
     def tokenize(self,src_list):
         dbl_operator=False
@@ -120,7 +124,7 @@ class lexical_processor():
         if non_token_tmp != '':token.append(non_token_tmp.strip())
 
     def sort_token_type(self,token):
-        if not token in self.brakes and not token in self.kw and not token in self.operators:return False 
+        if not token in self.brakes and not token in self.kw and not token in self.operators:return False#典型的屎山，什么时候改一下 
         else: return True
 
     def post_process(self,src_code):
@@ -129,10 +133,10 @@ class lexical_processor():
         regex_string=r'\"(\S*)\"' #单行字符串，内部嵌有的引号好像不会被识别
         strings=re.findall(regex_string,src_code)
         count=0
-        strings_predef=''
+        strings_predef='' 
         while count<=len(strings):
             src_code.replace('"'+strings[count]+'"','__nitro_runtime_str_'+str(count),1)
-            strings_predef+='#predef __nitro_runtime_str_'+str(count)+' '+strings[count]+'\n'
+            strings_predef+='#predef __nitro_runtime_str_'+str(count)+' '+strings[count]+'\n'#需要指出的是，predef可以用来定义新的变量类型
             count+=1
         return strings_predef+src_code
 
@@ -181,6 +185,7 @@ class lexical_processor():
             'string':LEX_STRING,
             'float':LEX_FLOAT,
             'double':LEX_DOUBLE,
-            'function':LEX_FUNCTION
+            'function':LEX_FUNCTION,
+            'type':LEX_USERDEF_TYPE#用户自定义类型
         } 
         return table[token]
