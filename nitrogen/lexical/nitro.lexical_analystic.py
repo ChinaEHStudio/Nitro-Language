@@ -151,7 +151,7 @@ class lexical_processor():
         strings_predef='' 
         while count<=len(strings):
             src_code.replace('"'+strings[count]+'"','__nitro_runtime_str_'+str(count),1)
-            strings_predef+='#predef __nitro_runtime_str_'+str(count)+' '+strings[count]+'\n'#需要指出的是，predef可以用来定义新的变量类型
+            strings_predef+='#predef string __nitro_runtime_str_'+str(count)+' '+'"'+strings[count]+'"'+'\n'#需要指出的是，predef可以用来定义新的变量类型
             count+=1
         return strings_predef+src_code
 
