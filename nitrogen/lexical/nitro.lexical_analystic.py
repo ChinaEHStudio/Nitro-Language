@@ -44,11 +44,25 @@ LEX_WHILE=0X0034
 LEX_FOREACH=0X0035
 LEX_BREAK=0X0036
 LEX_CONTINUE=0X0037
+LEX_TRY=0X0038
+LEX_EXCEPT=0X0039
+LEX_FINALLY=0X003A
 LEX_INT=0X0040
 LEX_STRING=0X0041
 LEX_FLOAT=0X0042
 LEX_DOUBLE=0X0043
+LEX_VOID=0X0044
+LEX_AUTO=0X0045
+LEX_BOOL=0X0046
+
 LEX_FUNCTION=0X0050
+LEX_NEW=0X0051
+LEX_RETURN=0X0052
+
+LEX_PUBLIC=0X0060
+LEX_PRIVATE=0X0061
+LEX_REG=0X0062
+
 LEX_NONTOKEN=0x01ff#包括变量名，数字，等等
 LEX_USERDEF_TYPE=0X02ff
 
@@ -66,15 +80,16 @@ class lexical_processor():
         ]
     #关键字
     kw=[
-        'if','else','elif','for','while','foreach','break','continue',
-        'int','string','float','double','function'
+        'if','else','elif','for','while','foreach','break','continue','try','except','finally',
+        'int','string','float','double','void','auto','bool','function','const','new',
+        'public','private','reg','new','return'
     ]
     source_code=str()
     src_code_list=[]
     token=[]
 
     nontoken_symbols_list=[]
-    defined_symbols_list=[]
+    #defined_symbols_list=[]
     sorted_token=[]#这玩意被我搞成了Vt和Vn的并集，算了不管力
     def __init__(self,src_code):
         src=self.post_process(src_code)
@@ -181,11 +196,22 @@ class lexical_processor():
             'foreach':LEX_FOREACH,
             'break':LEX_BREAK,
             'continue':LEX_CONTINUE,
+            'try':LEX_TRY,
+            'except':LEX_EXCEPT,
+            'finally':LEX_FINALLY,
             'int':LEX_INT,
             'string':LEX_STRING,
             'float':LEX_FLOAT,
             'double':LEX_DOUBLE,
+            'void':LEX_VOID,
+            'auto':LEX_AUTO,
+            'bool':LEX_BOOL,
             'function':LEX_FUNCTION,
-            'type':LEX_USERDEF_TYPE#用户自定义类型
+            'new':LEX_NEW,
+            'return':LEX_RETURN,
+            'public':LEX_PUBLIC,
+            'private':LEX_PRIVATE,
+            'reg':LEX_REG,
+            #'type':LEX_USERDEF_TYPE#用户自定义类型
         } 
         return table[token]
