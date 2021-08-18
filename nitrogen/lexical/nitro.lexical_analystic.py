@@ -214,4 +214,4 @@ class lexical_processor():
             'reg':LEX_REG,
             #'type':LEX_USERDEF_TYPE#用户自定义类型
         } 
-        return table[token]
+        return table[token]#
