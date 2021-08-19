@@ -145,7 +145,7 @@ class lexical_processor():
     def post_process(self,src_code):
         regex_note=r'(\/\/.*)' #双/型注释
         src_code=re.sub(regex_note,'',src_code)
-        regex_string=r'\"(\S*)\"' #单行字符串，内部嵌有的引号好像不会被识别
+        regex_string=r'\"(\S*?)\"' #单行字符串，内部嵌有的引号好像不会被识别
         strings=re.findall(regex_string,src_code)
         count=0
         strings_predef='' 
