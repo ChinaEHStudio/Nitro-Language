@@ -145,13 +145,19 @@ class lexical_processor():
     def post_process(self,src_code):
         regex_note=r'(\/\/.*)' #双/型注释
         src_code=re.sub(regex_note,'',src_code)
-        regex_string=r'\"(\S*?)\"' #单行字符串，内部嵌有的引号好像不会被识别
+        src_code=re.sub(r'(\\)?\"','<__nitro_lex_quotation_mark>',src_code)#把转义过的引号换成别的什么东西
+        regex_string=r'\"(\S*?)\"' #单行字符串，内部嵌有的引号好像不会被识别 现在不行，得整个转义字符
         strings=re.findall(regex_string,src_code)
+        strings_tmp=[]
+        for s in strings:
+            strings_tmp.append(s.replace('<__nitro_lex_quotation_mark>','"'))
+        strings=strings_tmp
         count=0
         strings_predef='' 
         while count<=len(strings):
             src_code.replace('"'+strings[count]+'"','__nitro_runtime_str_'+str(count),1)
-            strings_predef+='#predef string __nitro_runtime_str_'+str(count)+' '+'"'+strings[count]+'"'+'\n'#需要指出的是，predef可以用来定义新的变量类型
+            strings_predef+='#predef string __nitro_runtime_str_'+str(count)+' '+'"'+strings[count]+'"'+'\n'#需要指出的是，predef可以用来定义新的变量类型 弃用：容易引起歧义，换个别的算了。
+            #这里的字符串没有转义了！！所以就直接按照常量的名字后的空格开始识别，一直到eol标志再结束！
             count+=1
         return strings_predef+src_code
 
